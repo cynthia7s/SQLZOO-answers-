@@ -1,0 +1,117 @@
+More JOIN operations
+1--
+SELECT id, title FROM movie
+   WHERE yr=1962
+
+2--
+select yr from movie
+where title ='Citizen Kane'
+
+
+3--
+select id, title, yr from movie
+where title like '%Star Trek%'
+order by 3
+
+
+4--
+select id from actor
+where name = 'Glenn Close' 
+
+
+5--
+select id from movie
+where title = 'Casablanca'
+
+
+6--
+select name from actor a 
+join casting c
+on c.actorid = a.id
+join movie m 
+on m.id = c.movieid
+where title = 'Casablanca'
+
+
+7--
+select name from actor a 
+join casting c
+on c.actorid = a.id
+join movie m 
+on m.id = c.movieid
+where title =  'Alien'
+
+8--
+select title from movie m
+join casting c on c.movieid = m.id
+join actor a on a.id = c.actorid
+where name = 'Harrison Ford'
+
+
+9--
+select title from movie m
+join casting c on c.movieid = m.id
+join actor a on a.id = c.actorid
+where name = 'Harrison Ford'
+AND ord <> 1
+
+
+10--
+select title, name from movie m
+join casting c on c.movieid = m.id
+join actor a on a.id = c.actorid
+where ord =1
+AND yr = 1962
+
+
+11--
+SELECT yr,COUNT(title) 
+from movie m
+join casting c on c.movieid = m.id
+join actor a on a.id = c.actorid
+WHERE name = 'Rock Hudson'
+GROUP BY yr
+HAVING COUNT(title) > 2
+
+
+12--
+SELECT title, name
+from movie m
+join casting c on c.movieid = m.id
+join actor a on a.id = c.actorid
+where ord = 1
+and movieid in (select movieid from casting 
+    where actorid = 
+    (select id from actor 
+     where name = 'Julie Andrews' )
+)
+
+
+13--
+SELECT name
+from movie m
+join casting c on c.movieid = m.id
+join actor a on a.id = c.actorid
+where ord = 1
+group by name
+having count(title) >= 15
+
+
+14--
+SELECT title, count(actorid)
+from movie m
+join casting c on c.movieid = m.id
+join actor a on a.id = c.actorid
+where yr = 1978
+group by 1
+order by 2 DESC, 1
+
+15--
+SELECT name
+from casting c
+join actor a 
+on a.id = c.actorid
+where movieid in (
+ select movieid from casting
+ WHERE actorid = (SELECT id FROM actor WHERE name = 'Art Garfunkel'))
+AND name <>'Art Garfunkel'
