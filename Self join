@@ -1,0 +1,88 @@
+https://sqlzoo.net/wiki/Self_join
+1--
+select count(*)
+from stops;
+
+2--
+select id from stops
+where name = 'Craiglockhart';
+
+3--
+SELECT id, name
+FROM stops s 
+JOIN route r ON s.id = r.stop
+WHERE num = '4'
+and company='LRT';
+
+4--
+SELECT company, num, COUNT(*)
+from route 
+where stop=149 or stop=53
+group by company, num
+having COUNT(*) =2;
+
+5--
+SELECT r1.company, r1.num, r1.stop, r2.stop
+FROM route r1 
+JOIN route r2 
+ON (r1.company=r2.company AND r1.num=r2.num)
+WHERE r1.stop = 53
+  and r2.stop = 149;
+  
+6--
+SELECT r1.company, r1.num, s1.name, s2.name
+FROM route r1 
+JOIN route r2 
+ON (r1.company=r2.company AND r1.num=r2.num)
+JOIN stops s1 ON (r1.stop=s1.id)
+JOIN stops s2 ON (r2.stop=s2.id)
+WHERE s1.name ='Craiglockhart'
+  and s2.name ='London Road';
+
+7--Give a list of all the services which connect stops 115 and 137 ('Haymarket' and 'Leith')
+select distinct r1.company, 
+       r1.num 
+from route r1
+join route r2 on r1.company=r2.company AND r1.num=r2.num
+where r1.stop = 115
+  and r2.stop = 137;
+  
+8--Give a list of the services which connect the stops 'Craiglockhart' and 'Tollcross'
+select distinct r1.company, r1.num
+from route r1
+join route r2 on (r1.company=r2.company and r1.num=r2.num)
+join stops s1 on r1.stop=s1.id
+join stops s2 on r2.stop=s2.id
+where s1.name = 'Craiglockhart' 
+  and s2.name = 'Tollcross';
+
+9--Give a distinct list of the stops which may be reached from 'Craiglockhart' by taking one bus, including 'Craiglockhart' itself, offered by the LRT company. Include the company and bus no. of the relevant services.
+select distinct name, r1.company, r1.num 
+from route r1
+join route r2 on r1.num=r2.num
+join stops s on r1.stop=s.id
+where r1.company = 'LRT'
+  and r2.stop in (
+           select id from stops
+           where name ='Craiglockhart');
+
+10--Find the routes involving two buses that can go from Craiglockhart to Lochend. Show the bus no. and company for the first bus, the name of the stop for the transfer,
+and the bus no. and company for the second bus. 
+-- And the result will be ordered by number of the first bus, trasfer stops, and the number of second bus. (The question didn't mention it.)
+select r1.num, r1.company, s2.name, r3.num, r3.company
+from route r1
+join route r2 on (r1.company = r2.company and r1.num=r2.num)
+join (route r3 
+     join route r4 on (r3.company = r4.company and r3.num=r4.num)
+)
+join stops s1 on r1.stop=s1.id
+join stops s2 on r2.stop=s2.id
+join stops s3 on r3.stop=s3.id
+join stops s4 on r4.stop=s4.id
+
+where s1.name ='Craiglockhart'
+and s4.name = 'Lochend'
+and s2.name = s3.name
+order by r1.num, name, r3.num;
+
+
